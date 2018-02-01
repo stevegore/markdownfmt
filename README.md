@@ -1,7 +1,7 @@
 markdownfmt
 ===========
 
-[![Build Status](https://travis-ci.org/shurcooL/markdownfmt.svg?branch=master)](https://travis-ci.org/shurcooL/markdownfmt) [![GoDoc](https://godoc.org/github.com/shurcooL/markdownfmt?status.svg)](https://godoc.org/github.com/shurcooL/markdownfmt)
+[![Build Status](https://travis-ci.org/jsternberg/markdownfmt.svg?branch=master)](https://travis-ci.org/jsternberg/markdownfmt) [![GoDoc](https://godoc.org/github.com/jsternberg/markdownfmt?status.svg)](https://godoc.org/github.com/jsternberg/markdownfmt)
 
 Like `gofmt`, but for Markdown.
 
@@ -13,7 +13,7 @@ Installation
 ------------
 
 ```bash
-go get -u github.com/shurcooL/markdownfmt
+go get -u github.com/jsternberg/markdownfmt
 ```
 
 Add `$GOPATH/bin` to your `$PATH` or copy `$GOPATH/bin/markdownfmt` to your `$PATH`.
@@ -47,3 +47,5 @@ License
 -------
 
 -	[MIT License](https://opensource.org/licenses/mit-license.php)
+
+This is a fork of the original [markdownfmt](https://github.com/shurcooL/markdownfmt) by [Dmitri Shuralyov](https://github.com/shurcooL) except that it is updated to work with the blackfriday v2 library.
