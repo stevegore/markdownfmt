@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/mattn/go-runewidth"
+	"github.com/russross/blackfriday"
 	"github.com/shurcooL/go/indentwriter"
-	"gopkg.in/russross/blackfriday.v2"
 )
 
 var _ blackfriday.Renderer = (*markdownRenderer)(nil)
@@ -66,7 +66,7 @@ func (mr *markdownRenderer) RenderNode(w io.Writer, node *blackfriday.Node, ente
 	case blackfriday.Text:
 		mr.NormalText(w, node.Literal)
 	case blackfriday.HTMLBlock:
-		mr.BlockHtml(w, node.Literal)
+		mr.BlockHTML(w, node.Literal)
 	case blackfriday.CodeBlock:
 		mr.BlockCode(w, node)
 	case blackfriday.Softbreak:
@@ -100,8 +100,8 @@ func (mr *markdownRenderer) RenderNode(w io.Writer, node *blackfriday.Node, ente
 	return blackfriday.GoToNext
 }
 
-func (_ *markdownRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {}
-func (_ *markdownRenderer) RenderFooter(w io.Writer, ast *blackfriday.Node) {}
+func (*markdownRenderer) RenderHeader(w io.Writer, ast *blackfriday.Node) {}
+func (*markdownRenderer) RenderFooter(w io.Writer, ast *blackfriday.Node) {}
 
 func formatCode(lang string, text []byte) (formattedCode []byte, ok bool) {
 	switch lang {
@@ -171,7 +171,7 @@ func (mr *markdownRenderer) BlockQuote(w io.Writer, node *blackfriday.Node) {
 		io.WriteString(w, "\n")
 	}
 }
-func (_ *markdownRenderer) BlockHtml(w io.Writer, text []byte) {
+func (*markdownRenderer) BlockHTML(w io.Writer, text []byte) {
 	doubleSpace(w)
 	w.Write(text)
 	w.Write([]byte{'\n'})
@@ -182,38 +182,16 @@ func (mr *markdownRenderer) Header(w io.Writer, node *blackfriday.Node, entering
 	}
 
 	level := node.HeadingData.Level
-	if level >= 3 {
-		if entering {
-			fmt.Fprint(w, strings.Repeat("#", level), " ")
-		} else {
-			w.Write([]byte{'\n'})
-		}
-		return blackfriday.GoToNext
+
+	if entering {
+		fmt.Fprint(w, strings.Repeat("#", level), " ")
 	} else {
-		// Write the header to the output using a buffer so we can track how much we write.
-		out := WithBuffer(w)
-		defer out.Flush()
-
-		marker := out.Len()
-		for n := node.FirstChild; n != nil; n = n.Next {
-			n.Walk(func(node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
-				return mr.RenderNode(out, node, entering)
-			})
-		}
-
-		// Track the number of characters written.
-		len := mr.stringWidth(string(out.Bytes()[marker:]))
-		switch level {
-		case 1:
-			fmt.Fprint(out, "\n", strings.Repeat("=", len))
-		case 2:
-			fmt.Fprint(out, "\n", strings.Repeat("-", len))
-		}
-		io.WriteString(w, "\n")
-		return blackfriday.SkipChildren
+		w.Write([]byte{'\n'})
 	}
+	return blackfriday.GoToNext
 }
-func (_ *markdownRenderer) HRule(w io.Writer) {
+
+func (*markdownRenderer) HRule(w io.Writer) {
 	doubleSpace(w)
 	io.WriteString(w, "---\n")
 }
@@ -357,7 +335,7 @@ func (mr *markdownRenderer) Strong(w io.Writer, entering bool) {
 		io.WriteString(w, "\x1b[0m") // Reset.
 	}
 }
-func (_ *markdownRenderer) Image(w io.Writer, link []byte, title []byte, entering bool) {
+func (*markdownRenderer) Image(w io.Writer, link []byte, title []byte, entering bool) {
 	if entering {
 		io.WriteString(w, "![")
 	} else {
@@ -397,20 +375,20 @@ func (mr *markdownRenderer) Link(w io.Writer, node *blackfriday.Node) {
 	}
 	io.WriteString(w, ")")
 }
-func (_ *markdownRenderer) RawHtmlTag(out *bytes.Buffer, tag []byte) {
+func (*markdownRenderer) RawHTMLTag(out *bytes.Buffer, tag []byte) {
 	out.Write(tag)
 }
-func (_ *markdownRenderer) TripleEmphasis(out *bytes.Buffer, text []byte) {
+func (*markdownRenderer) TripleEmphasis(out *bytes.Buffer, text []byte) {
 	out.WriteString("***")
 	out.Write(text)
 	out.WriteString("***")
 }
-func (_ *markdownRenderer) StrikeThrough(out *bytes.Buffer, text []byte) {
+func (*markdownRenderer) StrikeThrough(out *bytes.Buffer, text []byte) {
 	out.WriteString("~~")
 	out.Write(text)
 	out.WriteString("~~")
 }
-func (_ *markdownRenderer) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {
+func (*markdownRenderer) FootnoteRef(out *bytes.Buffer, ref []byte, id int) {
 	out.WriteString("<FootnoteRef: Not implemented.>") // TODO
 }
 
